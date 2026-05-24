@@ -576,5 +576,4 @@ st.download_button(
 
 st.markdown('---')
 st.caption('Developed with ❤️ using Streamlit + Python + AI Analytics')
-```
 
