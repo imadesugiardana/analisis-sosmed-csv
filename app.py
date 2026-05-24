@@ -73,10 +73,33 @@ uploaded_file = st.sidebar.file_uploader(
 # ==========================================
 
 @st.cache_data
-
 def load_data(file):
-    df = pd.read_csv(file)
+
+    # Semua dibaca string dulu
+    df = pd.read_csv(
+        file,
+        dtype=str
+    )
+
     return df
+    
+numeric_columns = [
+    'diggCount',
+    'shareCount',
+    'playCount',
+    'commentCount',
+    'collectCount',
+    'videoMeta.duration'
+]
+
+for col in numeric_columns:
+
+    if col in df.columns:
+
+        df[col] = pd.to_numeric(
+            df[col],
+            errors='coerce'
+        ).fillna(0)
 
 if uploaded_file is None:
     st.info("Silakan upload file CSV terlebih dahulu")
@@ -368,8 +391,21 @@ if 'text' in df.columns:
 
     hashtags = []
 
-    for text in df['text'].astype(str):
-        found = re.findall(r'#(\w+)', text)
+    # Bersihkan data text
+    text_series = (
+        df['text']
+        .fillna('')
+        .astype(str)
+    )
+
+    for text in text_series:
+
+        # Pastikan benar-benar string
+        safe_text = str(text)
+
+        # Cari hashtag
+        found = re.findall(r'#(\\w+)', safe_text)
+
         hashtags.extend(found)
 
     hashtag_df = pd.DataFrame(
@@ -395,7 +431,13 @@ if 'text' in df.columns:
             title='Top Hashtag'
         )
 
-        st.plotly_chart(fig_hash, use_container_width=True)
+        st.plotly_chart(
+            fig_hash,
+            use_container_width=True
+        )
+
+    else:
+        st.warning("Tidak ditemukan hashtag")
 
 # ==========================================
 # SENTIMENT ANALYSIS VISUALIZATION
