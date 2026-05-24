@@ -72,34 +72,21 @@ uploaded_file = st.sidebar.file_uploader(
 # LOAD DATA
 # ==========================================
 
+# ==========================================
+# LOAD DATA
+# ==========================================
+
 @st.cache_data
 def load_data(file):
 
-    # Semua dibaca string dulu
+    # baca semua sebagai string dulu
     df = pd.read_csv(
         file,
         dtype=str
     )
 
     return df
-    
-numeric_columns = [
-    'diggCount',
-    'shareCount',
-    'playCount',
-    'commentCount',
-    'collectCount',
-    'videoMeta.duration'
-]
 
-for col in numeric_columns:
-
-    if col in df.columns:
-
-        df[col] = pd.to_numeric(
-            df[col],
-            errors='coerce'
-        ).fillna(0)
 
 if uploaded_file is None:
     st.info("Silakan upload file CSV terlebih dahulu")
@@ -107,6 +94,7 @@ if uploaded_file is None:
 
 try:
     df = load_data(uploaded_file)
+
 except Exception as e:
     st.error(f"Gagal membaca file CSV: {e}")
     st.stop()
@@ -125,19 +113,13 @@ numeric_columns = [
 ]
 
 for col in numeric_columns:
+
     if col in df.columns:
-        df[col] = pd.to_numeric(df[col], errors='coerce').fillna(0)
 
-# Convert datetime
-if 'createTimeISO' in df.columns:
-    df['createTimeISO'] = pd.to_datetime(
-        df['createTimeISO'],
-        errors='coerce'
-    )
-
-    df['posting_date'] = df['createTimeISO'].dt.date
-    df['posting_hour'] = df['createTimeISO'].dt.hour
-    df['posting_day'] = df['createTimeISO'].dt.day_name()
+        df[col] = pd.to_numeric(
+            df[col],
+            errors='coerce'
+        ).fillna(0)
 
 # ==========================================
 # ENGAGEMENT CALCULATION
