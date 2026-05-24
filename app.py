@@ -316,28 +316,47 @@ if 'posting_hour' in df.columns:
 # ==========================================
 # WORD CLOUD
 # ==========================================
-
 st.header("☁️ Word Cloud Caption")
 
 if 'text' in df.columns:
 
-    all_text = ' '.join(df['text'].astype(str).tolist())
+    # Bersihkan data null/kosong
+    text_series = (
+        df['text']
+        .fillna('')
+        .astype(str)
+    )
 
-    clean_text = re.sub(r'http\S+', '', all_text)
+    # Ambil hanya text valid
+    text_list = [
+        str(x)
+        for x in text_series
+        if str(x).strip() != ''
+    ]
+
+    all_text = ' '.join(text_list)
+
+    # Cleaning text
+    clean_text = re.sub(r'http\\S+', '', all_text)
     clean_text = re.sub(r'[^A-Za-z0-9# ]+', '', clean_text)
 
-    wordcloud = WordCloud(
-        width=1200,
-        height=500,
-        background_color='white'
-    ).generate(clean_text)
+    if clean_text.strip():
 
-    fig_wc, ax = plt.subplots(figsize=(15, 5))
+        wordcloud = WordCloud(
+            width=1200,
+            height=500,
+            background_color='white'
+        ).generate(clean_text)
 
-    ax.imshow(wordcloud, interpolation='bilinear')
-    ax.axis('off')
+        fig_wc, ax = plt.subplots(figsize=(15, 5))
 
-    st.pyplot(fig_wc)
+        ax.imshow(wordcloud, interpolation='bilinear')
+        ax.axis('off')
+
+        st.pyplot(fig_wc)
+
+    else:
+        st.warning("Tidak ada teks valid untuk Word Cloud")
 
 # ==========================================
 # HASHTAG ANALYSIS
